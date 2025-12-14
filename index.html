@@ -1,9 +1,12 @@
 <div>Teachable Machine Image Model</div>
 <button type="button" onclick="init()">Start</button>
+<button type="button" onclick="usart.connect()">Connect Serial</button>
+<button type="button" onclick="usart.disconnect()">Disconnect</button>
 <div id="webcam-container"></div>
 <div id="label-container"></div>
 <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest/dist/tf.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@latest/dist/teachablemachine-image.min.js"></script>
+<script src="usart.js"></script>
 <script type="text/javascript">
     // More API functions here:
     // https://github.com/googlecreativelab/teachablemachine-community/tree/master/libraries/image
@@ -54,6 +57,12 @@
             const classPrediction =
                 prediction[i].className + ": " + prediction[i].probability.toFixed(2);
             labelContainer.childNodes[i].innerHTML = classPrediction;
+        }
+        // Send "UP" when class 0 > 0.5, or "DOWN" when class 1 > 0.5
+        if (prediction[0] && prediction[0].probability > 0.5) {
+            await usart.send("UP");
+        } else if (prediction[1] && prediction[1].probability > 0.5) {
+            await usart.send("DOWN");
         }
     }
 </script>
