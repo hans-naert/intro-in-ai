@@ -2,6 +2,7 @@
 class SerialComm {
     constructor() {
         this.port = null;
+        this.previousPrediction = Date.now();
     }
 
     async connect() {
@@ -15,17 +16,24 @@ class SerialComm {
     }
 
     async send(message) {
-        if (!this.port || !this.port.writable) {
-            console.warn("Serial port not available");
-            return;
-        }
-        try {
-            const writer = this.port.writable.getWriter();
-            await writer.write(new TextEncoder().encode(message + "\n"));
-            writer.releaseLock();
-            console.log("Sent:", message);
-        } catch (error) {
-            console.error("Failed to send data:", error);
+        // Iedere seconde de voorspelling communiceren naar de UART.
+        if(Date.now() > this.previousPrediction + 1000)
+        {
+            // Huidige tijd opslaan voor later...
+            this.previousPrediction = Date.now();
+
+            if (!this.port || !this.port.writable) {
+                console.warn("Serial port not available");
+                return;
+            }
+            try {
+                    const writer = this.port.writable.getWriter();
+                    await writer.write(new TextEncoder().encode(message + "\n"));
+                    writer.releaseLock();
+                    console.log("Sent:", message);
+            } catch (error) {
+                console.error("Failed to send data:", error);
+            }            
         }
     }
 
