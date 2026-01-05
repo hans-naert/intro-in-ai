@@ -4,6 +4,7 @@
 <div id="label-container"></div>
 <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest/dist/tf.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@latest/dist/teachablemachine-image.min.js"></script>
+<script src="usart.js"></script>
 <script type="text/javascript">
     // More API functions here:
     // https://github.com/googlecreativelab/teachablemachine-community/tree/master/libraries/image
@@ -17,6 +18,9 @@
     async function init() {
         const modelURL = URL + "model.json";
         const metadataURL = URL + "metadata.json";
+
+        // connect USART
+        await usart.connect();
 
         // load the model and metadata
         // Refer to tmImage.loadFromFiles() in the API to support files from a file picker
@@ -55,5 +59,10 @@
                 prediction[i].className + ": " + prediction[i].probability.toFixed(2);
             labelContainer.childNodes[i].innerHTML = classPrediction;
         }
+        if(prediction[0]&&prediction[0].probability>0.5){
+            await usart.send("UP");
+        } else if(prediction[1]&&prediction[1].probability>0.5){
+            await usart.send("DOWN");
+        } 
     }
 </script>
